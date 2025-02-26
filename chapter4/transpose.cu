@@ -66,6 +66,60 @@ __global__ void tranposeNaiveCol(float* out, float* in, const int nx, const int 
     }
 }
 
+// load row, store col
+__global__ void tranposeUnroll4Row(float* out, float* in, const int nx, const int ny){
+    unsigned int ix = blockDim.x * blockIdx.x + threadIdx.x;
+    unsigned int iy = blockDim.y * blockIdx.y + threadIdx.y;
+    unsigned int ti = iy*nx + ix; //access in rows
+    unsigned int to = ix*ny + iy; //access in cols
+    if (ix + 3 * blockDim.x < nx && iy < ny){
+        out[to] = in[ti];
+        out[to + ny * blockDim.x] = in[ti + blockDim.x];
+        out[to + ny * 2 * blockDim.x] = in[ti + 2 * blockDim.x];
+        out[to + ny * 3 * blockDim.x] = in[ti + 3 * blockDim.x];
+    }
+}
+
+__global__ void tranposeUnroll4Col(float* out, float* in, const int nx, const int ny){
+    unsigned int ix = blockDim.x * blockIdx.x + threadIdx.x;
+    unsigned int iy = blockDim.y * blockIdx.y + threadIdx.y;
+    
+    unsigned int ti = ix*ny + iy; //access in cols
+    unsigned int to = iy*nx + ix; //access in rows
+    
+    if (ix + 3 * blockDim.x < nx && iy < ny){
+        out[to] = in[ti];
+        out[to + blockDim.x] = in[ti + blockDim.x * ny];
+        out[to + blockDim.x * 2] = in[ti + blockDim.x * ny * 2];
+        out[to + blockDim.x * 3] = in[ti + blockDim.x * ny * 3];
+    }
+}
+
+__global__ void tranposediagonalRow(float* out, float* in, const int nx, const int ny){
+    unsigned int blk_y = blockIdx.x;
+    unsigned int blk_x = (blockIdx.x + blockIdx.y) % gridDim.x;
+    
+    unsigned int ix = blockDim.x * blk_x + threadIdx.x;
+    unsigned int iy = blockDim.y * blk_y + threadIdx.y;
+    
+    
+    if (ix < nx && iy < ny){
+        out[ix*ny + iy] = in[iy*nx + ix];
+    }
+}
+
+__global__ void tranposediagonalCol(float* out, float* in, const int nx, const int ny){
+    unsigned int blk_y = blockIdx.x;
+    unsigned int blk_x = (blockIdx.x + blockIdx.y) % gridDim.x;
+    
+    unsigned int ix = blockDim.x * blk_x + threadIdx.x;
+    unsigned int iy = blockDim.y * blk_y + threadIdx.y;
+    if (ix < nx && iy < ny){
+        out[iy*nx + ix] = in[ix*ny + iy];
+    }
+}
+
+
 void initialData(float *ip, int nx, int ny)
 {
     time_t t;
@@ -167,6 +221,24 @@ int main(int argc, char** argv){
         case 3:
             kernel = &tranposeNaiveCol;
             kernelName = "tranposeNaiveCol";
+            break;
+        case 4:
+            kernel = &tranposeUnroll4Row;
+            kernelName = "tranposeUnroll4Row";
+            grid.x = (nx + block.x * 4 - 1)/(block.x * 4);
+            break;
+        case 5:
+            kernel = &tranposeUnroll4Col;
+            kernelName = "tranposeUnroll4Col";
+            grid.x = (nx + block.x * 4 - 1)/(block.x * 4);
+            break;
+        case 6:
+            kernel = &tranposediagonalRow;
+            kernelName = "tranposediagonalRow";
+            break;
+        case 7:
+            kernel = &tranposediagonalCol;
+            kernelName = "tranposediagonalCol";
             break;
     }
 
