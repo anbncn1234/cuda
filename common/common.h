@@ -11,6 +11,27 @@
     }\
 }
 
+// 检查 CUDA 错误
+#define CHECK_CUDA(func)                                                       \
+{                                                                              \
+    cudaError_t status = (func);                                               \
+    if (status != cudaSuccess) {                                               \
+        std::cerr << "CUDA Error: " << cudaGetErrorString(status) << std::endl; \
+        exit(EXIT_FAILURE);                                                    \
+    }                                                                          \
+}
+
+// 检查 cuSPARSE 错误
+#define CHECK_CUSPARSE(func)                                                   \
+{                                                                              \
+    cusparseStatus_t status = (func);                                          \
+    if (status != CUSPARSE_STATUS_SUCCESS) {                                   \
+        std::cerr << "cuSPARSE Error: " << status << std::endl;                \
+        exit(EXIT_FAILURE);                                                    \
+    }                                                                          \
+}
+
+
 class Timer{
 	cudaEvent_t _start;
 	cudaEvent_t _stop;
