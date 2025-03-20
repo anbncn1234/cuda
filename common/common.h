@@ -31,6 +31,15 @@
     }                                                                          \
 }
 
+#define CHECK_CUBLAS(call) \
+{ \
+    cublasStatus_t status = (call); \
+    if (status != CUBLAS_STATUS_SUCCESS) { \
+        printf("cuBLAS error: %s at %s:%d\n", cublasGetStatusString(status), __FILE__, __LINE__); \
+        exit(EXIT_FAILURE); \
+    } \
+}
+
 
 class Timer{
 	cudaEvent_t _start;
