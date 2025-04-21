@@ -205,6 +205,7 @@ int main(int argc , char **argv)
     printf("%s starting\n", argv[0]);
 
     int dev = 0;
+    cudaSetDevice(dev);
     cudaDeviceProp deviceprop;
     CHECK(cudaGetDeviceProperties(&deviceprop,dev));
     printf("Using Device %d : %s\n", dev, deviceprop.name);

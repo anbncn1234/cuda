@@ -1,26 +1,7 @@
 #include <iostream>
 #include <cuda_runtime.h>
 #include <cusparse.h>
-
-// 检查 CUDA 错误
-#define CHECK_CUDA(func)                                                       \
-{                                                                              \
-    cudaError_t status = (func);                                               \
-    if (status != cudaSuccess) {                                               \
-        std::cerr << "CUDA Error: " << cudaGetErrorString(status) << std::endl; \
-        exit(EXIT_FAILURE);                                                    \
-    }                                                                          \
-}
-
-// 检查 cuSPARSE 错误
-#define CHECK_CUSPARSE(func)                                                   \
-{                                                                              \
-    cusparseStatus_t status = (func);                                          \
-    if (status != CUSPARSE_STATUS_SUCCESS) {                                   \
-        std::cerr << "cuSPARSE Error: " << status << std::endl;                \
-        exit(EXIT_FAILURE);                                                    \
-    }                                                                          \
-}
+#include "../common/common.h"
 
 int main() {
     // 初始化稠密矩阵 (4x4)

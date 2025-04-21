@@ -51,6 +51,8 @@ int main(void){
     cudaMemcpy(d_csrRows, h_csrRows, (n_rows + 1)* sizeof(int), cudaMemcpyHostToDevice);
 
     
+    
+
     free(h_csrVals);
     free(h_csrRows);
     free(h_csrCols);
